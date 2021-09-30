@@ -43,6 +43,9 @@ pipeline {
         } 
         stage ('Munit Test'){
         	steps {
+			 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+			    sh "exit 1"
+			}
 				withCredentials([file(credentialsId: 'settings', variable: 'settings')]){
 					sh "mvn -f pom.xml -s $settings test -Dkey=mule -Dmule.env=dev -Dhttp.port=8086"
 					publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'target/site/munit/coverage', reportFiles: 'summary.html', reportName: 'Munit coverage Report', reportTitles: ''])
@@ -52,6 +55,9 @@ pipeline {
         }
         stage('Functional Testing'){
         	steps {
+			 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+			    sh "exit 1"
+			}
         			withCredentials([file(credentialsId: 'settings', variable: 'settings')]){
 						sh "mvn -f pom.xml -s $settings test -Dtestfile=src/test/javarunner.TestRunner.java -Dkey=mule -Dmule.env=dev -Dhttp.port=8086"
 					}
@@ -59,11 +65,17 @@ pipeline {
             }
         stage('Generate Reports') {
       		steps {
+			 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+			    sh "exit 1"
+			}
         		    cucumber(failedFeaturesNumber: -1, failedScenariosNumber: -1, failedStepsNumber: -1, fileIncludePattern: 'cucumber.json', jsonReportDirectory: 'results', pendingStepsNumber: -1, skippedStepsNumber: -1, sortingMethod: 'ALPHABETICAL', undefinedStepsNumber: -1)
                   }
             }
         stage('Archetype'){
         	steps {
+			 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+			    sh "exit 1"
+			}
                     withCredentials([file(credentialsId: 'settings', variable: 'settings')]){
 						sh "mvn -f pom.xml -s $settings archetype:create-from-project -Dsecure.key=mule"
                     sh "mvn -f target/generated-sources/archetype/pom.xml -s $settings clean install -Dsecure.key=mule"
